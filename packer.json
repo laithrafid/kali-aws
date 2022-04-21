@@ -1,0 +1,40 @@
+{
+    "variables": {
+        "aws_access_key": "{{env `AWS_ACCESS_KEY_ID`}}",
+        "aws_secret_key": "{{env `AWS_SECRET_ACCESS_KEY`}}",
+        "region":         "canada-central"
+    },
+    "builders": [
+        {
+            "access_key": "{{user `aws_access_key`}}",
+            "ami_name": "kali-linux-aws-{{timestamp}}",
+            "instance_type": "t2.medium",
+            "region": "canada-central",
+            "secret_key": "{{user `aws_secret_key`}}",
+            "source_ami": "ami-0a83f486690af787e",
+            "ssh_username": "ec2-user",
+            "type": "amazon-ebs",
+            "tags": {
+                "OS_Version": "Kali Linux",
+                "Release": "Latest",
+                "Base_AMI_Name": "{{ .SourceAMIName }}",
+                "Project": "Kali"
+              }
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "environment_vars": "DEBIAN_FRONTEND=noninteractive",
+            "execute_command": "sudo -S env {{ .Vars }} {{ .Path }}",
+            "inline":[
+                "apt-get update",
+                "apt -o Dpkg::Options::='--force-confnew' -q --force-yes -y full-upgrade",
+                "apt-get autoremove -q -y",
+                "apt-get autoclean -q -y",
+                "apt-get install burpsuite"
+            ]
+        }
+    ]
+}
+
