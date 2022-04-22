@@ -200,7 +200,7 @@ resource "aws_security_group" "sg-ipv4-only" {
 resource "aws_key_pair" "ssh_key_pair" {
   count      = var.ssh_key_pair_name == "" ? 1 : 0
   key_name   = "kali-ssh-key.pub"
-  public_key = "${var.public_key_path}"
+  public_key = var.public_key_path
 }
 
 locals {
