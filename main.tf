@@ -16,7 +16,7 @@ resource "packer_image" "image" {
   variables = {
     access_key            = var.access_key
     secret_key            = var.secret_key
-    region                = var.region
+    region                = var.aws_region
     packer_ami_image_name = "packer_ami_image_name_build"
   }
   name = "ami-${random_string.random.result}"
