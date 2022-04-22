@@ -39,7 +39,7 @@ build {
   provisioner "shell" {
     environment_vars = "DEBIAN_FRONTEND=noninteractive"
     execute_command  = "sudo -S env {{ .Vars }} {{ .Path }}"
-    inline           = ["apt-get update", "apt -o Dpkg::Options::='--force-confnew' -q --force-yes -y full-upgrade", "apt-get autoremove -q -y", "apt-get autoclean -q -y", "apt-get install burpsuite"]
+    inline           = ["apt-get -y update", "apt-get -y upgrade", "apt-get -y dist-upgrade" , "apt-get install -y kali-desktop-xfce xorgxrdp xrdp" , "systemctl enable xrdp --now", "apt -o Dpkg::Options::='--force-confnew' -q --force-yes -y full-upgrade", "apt-get autoremove -q -y", "apt-get autoclean -q -y", "apt-get install burpsuite"]
   }
 
 }
