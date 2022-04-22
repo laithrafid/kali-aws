@@ -1,0 +1,13 @@
+aws_profile       = "default"
+aws_region        = "ca-central-1"
+create_vpc        = true
+ec2_instance_type = "t2.medium"
+packer_ami        = "ami-0a83f486690af787e"
+public_key_path   = "~/.ssh/id_rsa.pub"
+ssh_key_pair_name = ""
+subnet_cidr_block = "10.23.1.0/24"
+subnet_id         = ""
+use_ipv4only      = true
+use_ipv6          = false
+vpc_cidr          = "10.23.0.0/16"
+vpc_id            = ""
