@@ -231,12 +231,11 @@ resource "aws_instance" "kali_machine" {
   subnet_id                   = data.aws_subnet.subnet.id
   key_name                    = local.key_pair_name
   source_dest_check           = false
-  root_block_device = {
+  root_block_device {
     delete_on_termination = true
     volume_size           = 50
-    volume_type           = standard
+    volume_type           = gp2
   }
-
   tags = {
     Project   = "kali"
     ManagedBy = "terraform"
