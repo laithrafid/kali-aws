@@ -28,7 +28,7 @@ resource "packer_image" "image" {
 
 ## VPC:
 resource "aws_vpc" "new-vpc" {
-  count = var.create_vpc == true ? true : false
+  count = "${var.create_vpc == 1 ? 1 : 0}"
 
   cidr_block                       = var.vpc_cidr
   enable_dns_support               = true
@@ -42,13 +42,13 @@ resource "aws_vpc" "new-vpc" {
 }
 
 data "aws_vpc" "vpc" {
-  id = var.create_vpc == false ? var.vpc_id : "${join("", aws_vpc.new-vpc.*.id)}"
+  id = "${var.create_vpc == 0 ? var.vpc_id : "${join("", aws_vpc.new-vpc.*.id)}"}"
 }
 
 ## Subnets
 
 resource "aws_subnet" "public-subnet" {
-  count                           = var.create_vpc == true ? true : false
+  count                           = "${var.create_vpc == 1 ? 1 : 0}"
   vpc_id                          = data.aws_vpc.vpc.id
   cidr_block                      = var.subnet_cidr_block
   assign_ipv6_address_on_creation = var.use_ipv6 == true ? true : false
@@ -58,16 +58,16 @@ resource "aws_subnet" "public-subnet" {
     ManagedBy = "terraform"
   }
 
-  depends_on = ["aws_vpc.new-vpc"]
+  depends_on = [aws_vpc.new-vpc]
 }
 
 data "aws_subnet" "subnet" {
-  id = var.subnet_id != "" ? var.subnet_id : "${join("", aws_subnet.public-subnet.*.id)}"
+  id = "${var.subnet_id != "" ? var.subnet_id : "${join("", aws_subnet.public-subnet.*.id)}"}"
 }
 
 ## Internet Gateway
 resource "aws_internet_gateway" "igw" {
-  count  = var.create_vpc == true ? true : false
+  count  = "${var.create_vpc == 1 ? 1 : 0}"
   vpc_id = data.aws_vpc.vpc.id
 
   tags = {
@@ -79,7 +79,7 @@ resource "aws_internet_gateway" "igw" {
 ## Route Table
 
 resource "aws_route_table" "rt-ipv6" {
-  count  = var.create_vpc * var.use_ipv6 == true ? true : false
+  count  = "${var.create_vpc * var.use_ipv6 == 1 ? 1 : 0}"
   vpc_id = aws_vpc.new-vpc[count.index].id
 
   route {
@@ -99,7 +99,7 @@ resource "aws_route_table" "rt-ipv6" {
 }
 
 resource "aws_route_table" "rt-ipv4only" {
-  count  = var.create_vpc * var.use_ipv4only == true ? true : false
+  count  = "${var.create_vpc * var.use_ipv4only == 1 ? 1 : 0}"
   vpc_id = aws_vpc.new-vpc[count.index].id
 
   route {
@@ -114,7 +114,7 @@ resource "aws_route_table" "rt-ipv4only" {
 }
 
 resource "aws_route_table_association" "rtassoc" {
-  count = var.create_vpc == true ? true : false
+  count = "${var.create_vpc == 1 ? 1 : 0}"
 
   subnet_id      = aws_subnet.public-subnet[count.index].id
   route_table_id = var.use_ipv6 == 1 ? "${join("", aws_route_table.rt-ipv6.*.id)}" : "${join("", aws_route_table.rt-ipv4only.*.id)}"
@@ -123,7 +123,7 @@ resource "aws_route_table_association" "rtassoc" {
 ## Security Group
 
 resource "aws_security_group" "sg-ipv6" {
-  count       = var.use_ipv6 == true ? true : false
+  count       = "${var.use_ipv6 == 1 ? 1 : 0}"
   name        = "kali-ipv6"
   description = "Allow all IPv4 and IPv6 for kali"
   vpc_id      = data.aws_vpc.vpc.id
@@ -163,7 +163,7 @@ resource "aws_security_group" "sg-ipv6" {
 }
 
 resource "aws_security_group" "sg-ipv4-only" {
-  count       = var.use_ipv4only == true ? true : false
+  count       = "${var.use_ipv4only == 1 ? 1 : 0}"
   name        = "kali-ipv4only"
   description = "Allow all IPv4 for kali"
   vpc_id      = data.aws_vpc.vpc.id
@@ -195,7 +195,7 @@ resource "aws_security_group" "sg-ipv4-only" {
 ## SSH Key pair
 
 resource "aws_key_pair" "ssh_key_pair" {
-  count      = var.ssh_key_pair_name == "" ? true : false
+  count      = "${var.ssh_key_pair_name == "" ? 1 : 0}"
   key_name   = "kali-ssh-key"
   public_key = file("${var.public_key_path}")
 }
