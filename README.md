@@ -1,11 +1,20 @@
 # Terraform & Packer for Kali Linux EC2 instance on AWS
 
-Create a Kali Linux EC2 instance by utilizing Packer by using the official Kali Linux AMI and and apt-get dist-upgrade to be up-to-date with the Kali Linux Rolling Release.
+![alt text](images/architecture.png?raw=true)
 
-If you don't want to run Packer, Terraform uses the default Kali Linux AMI ami-10e00b6d based on Kali Linux 2018.3a. Please keep in mind that this is outdated and you have to update yourself to the current Rolling Release (apt-get update && apt-get dist-upgrade).
+This repo will Build and deploy a Kali Linux EC2 instance by utilizing Packer by using the official Kali Linux AMI and and apt-get dist-upgrade to be up-to-date with the Kali Linux Rolling Release.
+
+If you don't want to run Packer, just provide Terraform with a variable of ami of kali image from aws in your region which will be used to deploy the default Kali Linux AMI  
+
+
+PROTIP: You can choose a GPU EC2 instance type to have additional hash cracking power 🤓
+
+
 # requirements 
 1. aws credntials 
-2. subscribe to [Kali image](https://aws.amazon.com/marketplace/fulfillment?productId=804fcc46-63fc-4eb6-85a1-50e66d6c7215&ref_=dtl_psb_continue)
+2. subscribe to [Kali image](https://aws.amazon.com/marketplace/fulfillment?productId=804fcc46-63fc-4eb6-85a1-50e66d6c7215&ref_=dtl_psb_continue) you have to accept the terms and conditions of the Kali Linux AMI (this is an requirement of the AWS Marketplace (this is an requirement of the AWS Marketplace)
+3. terraform
+4. packer (will be installed as a provider in background, if you need to maunally build then install it)
 
 # Usage
 
@@ -13,6 +22,7 @@ If you don't want to run Packer, Terraform uses the default Kali Linux AMI ami-1
 `git clone `  
 
 2. Packer: Build your custom AMI
+`packer build `
 This will start a temporary EC2 instance with an atttached EBS volume and the official Kali Linux AMI as source_ami. Then it executes the inline shell commands in the provisioners section as root (_execute_command) and sets an environment variable so apt works noninteractive (_environmentvars).
 
 The generated AMI name will be in the format of: kali-linux-aws-{{timestamp}}.
@@ -25,8 +35,10 @@ eu-central-1: ami-10e00b6d
 ```
 Note down this AMI ID because we will use this in Terraform during the next step.
 
-3. copy terraform.tfvars.template to terraform.tfvars
+3. copy terraform.tfvars.template to terraform.tfvars and fill with your variables
 ```
+access_key        = "your aws access_key"
+secret_key        = "your aws secret_key"
 aws_profile       = "default"
 aws_region        = "ca-central-1"
 create_vpc        = true
@@ -105,3 +117,10 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_public_ip"></a> [public\_ip](#output\_public\_ip) | Public IPv4 address of Kali EC2 instance |
+
+
+# References
+* If you want to completely build your own Kali Linux, you can use the official [kali-cloud-build](https://gitlab.com/kalilinux/build-scripts/kali-cloud-build) tools.
+
+* github.com:hajowieland/terraform-kali-linux.git
+* https://napo.io/posts/terraform-packer-to-create-a-kali-linux-aws-ec2-instance/#set-up-your-aws-credentials

@@ -1,3 +1,13 @@
+variable "access_key" {
+  type = string
+  description = "your aws access key"
+  sensitive = true
+}
+variable "secret_key" {
+  type = string
+  description = "your aws secret key"
+  sensitive = true
+}
 variable "aws_region" {
   type        = string
   description = "AWS region"
@@ -74,5 +84,5 @@ variable "ec2_instance_type" {
 
 variable "packer_ami" {
   description = "Packer AMI ID to use for EC2 instance (NOTE: run `packer buidl packer.json` and use the generated AMI ID here)"
-  default     = "ami-0a83f486690af787e"
+  #default     = "ami-0a83f486690af787e"
 }

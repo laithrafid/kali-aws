@@ -1,3 +1,5 @@
+access_key        = "your aws access_key"
+secret_key        = "your aws secret_key"
 aws_profile       = "default"
 aws_region        = "ca-central-1"
 create_vpc        = true
