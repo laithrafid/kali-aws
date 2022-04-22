@@ -234,7 +234,7 @@ resource "aws_instance" "kali_machine" {
   root_block_device {
     delete_on_termination = true
     volume_size           = 50
-    volume_type           = gp2
+    volume_type           = "gp2"
   }
   tags = {
     Project   = "kali"
