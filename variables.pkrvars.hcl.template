@@ -1,0 +1,4 @@
+access_key        = "access_key"
+secret_key        = "secret_key"
+region            = "ca-central-1"
+packer_ami_image_name = "packer_ami_image_name_build"

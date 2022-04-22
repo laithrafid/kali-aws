@@ -10,3 +10,4 @@
 # .tfvars files
 *.tfvars
 .terraform.lock.hcl
+variables.pkrvars.hcl
