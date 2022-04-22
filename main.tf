@@ -20,6 +20,7 @@ resource "packer_image" "image" {
     secret_key            = var.secret_key
     region                = var.aws_region
     packer_ami_image_name = local.packer_ami_image_name
+    ec2_instance_type     = var.ec2_instance_type
   }
   name = "ami-${random_string.random.result}"
   triggers = {
