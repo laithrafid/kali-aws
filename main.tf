@@ -10,14 +10,16 @@ resource "random_string" "random" {
   number  = true
 }
 
-
+locals {
+  packer_ami_image_name = "packer_ami_image_name_build"
+}
 resource "packer_image" "image" {
   file = data.packer_files.image.file
   variables = {
     access_key            = var.access_key
     secret_key            = var.secret_key
     region                = var.aws_region
-    packer_ami_image_name = "packer_ami_image_name_build"
+    packer_ami_image_name = local.packer_ami_image_name
   }
   name = "ami-${random_string.random.result}"
   triggers = {
@@ -216,7 +218,7 @@ USERDATA
 }
 
 resource "aws_instance" "kali_machine" {
-  ami                         = var.packer_ami == "" ? var.packer_ami : "packer_ami_image_name_build"
+  ami                         = var.packer_ami != "" ? var.packer_ami : local.packer_ami_image_name
   instance_type               = var.ec2_instance_type
   monitoring                  = false
   vpc_security_group_ids      = ["${var.use_ipv6 == true ? "${join("", aws_security_group.sg-ipv6.*.id)}" : "${join("", aws_security_group.sg-ipv4-only.*.id)}"}"]
@@ -230,4 +232,7 @@ resource "aws_instance" "kali_machine" {
     Project   = "kali"
     ManagedBy = "terraform"
   }
+  depends_on = [
+    packer_image.image
+  ]
 }
