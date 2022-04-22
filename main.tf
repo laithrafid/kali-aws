@@ -2,32 +2,50 @@
 data "packer_files" "image" {
   file = "packer.pkr.hcl"
 }
-resource "random_string" "random" {
-  length  = 16
-  special = false
-  lower   = true
-  upper   = true
-  number  = true
-}
+# resource "random_string" "random" {
+#   length  = 16
+#   special = false
+#   lower   = true
+#   upper   = true
+#   number  = true
+# }
 
 locals {
   packer_ami_image_name = "packer_ami_image_name_build"
-}
-resource "packer_image" "image" {
-  file = data.packer_files.image.file
-  variables = {
-    access_key            = var.access_key
-    secret_key            = var.secret_key
-    region                = var.aws_region
-    packer_ami_image_name = local.packer_ami_image_name
-    ec2_instance_type     = var.ec2_instance_type
-  }
-  name = "ami-${random_string.random.result}"
-  triggers = {
-    files_hash = data.packer_files.image.files_hash
-  }
+  key_pair_name = var.ssh_key_pair_name == "" ? aws_key_pair.ssh_key_pair.0.key_name : var.ssh_key_pair_name
 }
 
+# resource "packer_image" "image" {
+#   file = data.packer_files.image.file
+#   variables = {
+#     access_key            = var.access_key
+#     secret_key            = var.secret_key
+#     region                = var.aws_region
+#     packer_ami_image_name = local.packer_ami_image_name
+#     ec2_instance_type     = var.ec2_instance_type
+#   }
+#   name = "ami-${random_string.random.result}"
+#   triggers = {
+#     files_hash = data.packer_files.image.files_hash
+#   }
+# }
+
+
+data "aws_ami" "kali" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["${local.packer_ami_image_name}"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners =["847753044022"]
+}
 
 ## VPC:
 resource "aws_vpc" "new-vpc" {
@@ -203,23 +221,9 @@ resource "aws_key_pair" "ssh_key_pair" {
   public_key = var.public_key_path
 }
 
-locals {
-  key_pair_name = var.ssh_key_pair_name == "" ? aws_key_pair.ssh_key_pair.0.key_name : var.ssh_key_pair_name
-}
-
 ## EC2 instance
-
-## TODO: check why the AMI doesnt use this userdata:
-locals {
-  kali-userdata = <<USERDATA
-#!/bin/bash
-apt-get update
-apt-get dist-upgrade -y
-USERDATA
-}
-
 resource "aws_instance" "kali_machine" {
-  ami                         = var.packer_ami != "" ? var.packer_ami : local.packer_ami_image_name
+  ami                         = var.packer_ami != "" ? var.packer_ami : "${data.aws_ami.kali.id}"
   instance_type               = var.ec2_instance_type
   monitoring                  = false
   vpc_security_group_ids      = ["${var.use_ipv6 == true ? "${join("", aws_security_group.sg-ipv6.*.id)}" : "${join("", aws_security_group.sg-ipv4-only.*.id)}"}"]
@@ -227,13 +231,9 @@ resource "aws_instance" "kali_machine" {
   subnet_id                   = data.aws_subnet.subnet.id
   key_name                    = local.key_pair_name
   source_dest_check           = false
-  user_data_base64            = base64encode(local.kali-userdata)
 
   tags = {
     Project   = "kali"
     ManagedBy = "terraform"
   }
-  depends_on = [
-    packer_image.image
-  ]
 }
