@@ -12,7 +12,7 @@ data "packer_files" "image" {
 
 locals {
   packer_ami_image_name = "packer_ami_image_name_build"
-  key_pair_name = var.ssh_key_pair_name == "" ? aws_key_pair.ssh_key_pair.0.key_name : var.ssh_key_pair_name
+  key_pair_name         = var.ssh_key_pair_name == "" ? aws_key_pair.ssh_key_pair.0.key_name : var.ssh_key_pair_name
 }
 
 # resource "packer_image" "image" {
@@ -44,7 +44,7 @@ data "aws_ami" "kali" {
     values = ["hvm"]
   }
 
-  owners =["847753044022"]
+  owners = ["847753044022"]
 }
 
 ## VPC:
@@ -231,6 +231,11 @@ resource "aws_instance" "kali_machine" {
   subnet_id                   = data.aws_subnet.subnet.id
   key_name                    = local.key_pair_name
   source_dest_check           = false
+  root_block_device = {
+    delete_on_termination = true
+    volume_size           = 50
+    volume_type           = standard
+  }
 
   tags = {
     Project   = "kali"
