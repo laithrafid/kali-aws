@@ -1,20 +1,27 @@
-## Packer;
+## Packer:
 data "packer_files" "image" {
   file = "packer.pkr.hcl"
+}
+resource "random_string" "random" {
+  length  = 16
+  special = false
+  lower   = true
+  upper   = true
+  number  = true
 }
 
 
 resource "packer_image" "image" {
-  file      = data.packer_files.image.file
+  file = data.packer_files.image.file
   variables = {
-    access_key = var.access_key
-    secret_key = var.secret_key
-    region     = var.region
+    access_key            = var.access_key
+    secret_key            = var.secret_key
+    region                = var.region
     packer_ami_image_name = "packer_ami_image_name_build"
   }
-  name             = "ami-${random_string.random.result}"
+  name = "ami-${random_string.random.result}"
   triggers = {
-    files_hash     = data.packer_files.image.files_hash
+    files_hash = data.packer_files.image.files_hash
   }
 }
 

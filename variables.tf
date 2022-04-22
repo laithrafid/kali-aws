@@ -1,12 +1,12 @@
 variable "access_key" {
-  type = string
+  type        = string
   description = "your aws access key"
-  sensitive = true
+  sensitive   = true
 }
 variable "secret_key" {
-  type = string
+  type        = string
   description = "your aws secret key"
-  sensitive = true
+  sensitive   = true
 }
 variable "aws_region" {
   type        = string
