@@ -216,7 +216,7 @@ USERDATA
 }
 
 resource "aws_instance" "kali_machine" {
-  ami                         = var.packer_ami != "" ? var.packer_ami : "packer_ami_image_name_build"
+  ami                         = var.packer_ami == "" ? var.packer_ami : "packer_ami_image_name_build"
   instance_type               = var.ec2_instance_type
   monitoring                  = false
   vpc_security_group_ids      = ["${var.use_ipv6 == true ? "${join("", aws_security_group.sg-ipv6.*.id)}" : "${join("", aws_security_group.sg-ipv4-only.*.id)}"}"]
